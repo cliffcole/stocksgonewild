@@ -2,22 +2,37 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
 const API_URL = 'http://localhost:5000/api';
+axios.defaults.withCredentials = true;
 
 export const fetchStockQuote = createAsyncThunk(
   'stocks/fetchQuote',
-  async (symbol) => {
-    const response = await axios.get(`${API_URL}/stocks/quote/${symbol}`);
-    return response.data;
+  async (symbol, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${API_URL}/stocks/quote/${symbol}`);
+      return response.data;
+    } catch (error) {
+      if (error.response?.status === 401) {
+        window.location.href = '/';
+      }
+      return rejectWithValue(error.response?.data || error.message);
+    }
   }
 );
 
 export const fetchMultipleQuotes = createAsyncThunk(
   'stocks/fetchMultipleQuotes',
-  async (symbols) => {
-    const response = await axios.get(`${API_URL}/stocks/quotes`, {
-      params: { symbols: symbols.join(',') }
-    });
-    return response.data;
+  async (symbols, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${API_URL}/stocks/quotes`, {
+        params: { symbols: symbols.join(',') }
+      });
+      return response.data;
+    } catch (error) {
+      if (error.response?.status === 401) {
+        window.location.href = '/';
+      }
+      return rejectWithValue(error.response?.data || error.message);
+    }
   }
 );
 
@@ -47,12 +62,11 @@ const stocksSlice = createSlice({
       })
       .addCase(fetchStockQuote.fulfilled, (state, action) => {
         state.loading = false;
-        // Assuming the API returns data with symbol as key
         Object.assign(state.quotes, action.payload);
       })
       .addCase(fetchStockQuote.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = action.payload?.error || 'Failed to fetch quote';
       })
       .addCase(fetchMultipleQuotes.fulfilled, (state, action) => {
         Object.assign(state.quotes, action.payload);

@@ -1,60 +1,116 @@
 const axios = require('axios');
+const schwabConfig = require('../config/schwab');
 
 class SchwabService {
   constructor() {
-    this.baseURL = 'https://api.schwabapi.com/marketdata/v1';
-    this.token = null;
-    this.tokenExpiry = null;
+    this.baseURL = schwabConfig.apiBaseUrl;
   }
 
-  async getAccessToken() {
-    // Implement OAuth2 flow for Schwab API
-    // This is a placeholder - you'll need to implement the actual OAuth flow
-    if (!this.token || Date.now() >= this.tokenExpiry) {
-      // Refresh token logic here
+  async makeAuthenticatedRequest(endpoint, options = {}, session) {
+    if (!session.tokens) {
+      throw new Error('Not authenticated');
     }
-    return this.token;
+
+    // Check if token needs refresh
+    if (Date.now() >= session.tokens.expiresAt - 60000) { // Refresh 1 minute before expiry
+      const tokenService = require('./tokenService');
+      session.tokens = await tokenService.refreshAccessToken(session.tokens.refresh_token);
+    }
+
+    try {
+      const response = await axios({
+        url: `${this.baseURL}${endpoint}`,
+        headers: {
+          'Authorization': `Bearer ${session.tokens.access_token}`,
+          ...options.headers
+        },
+        ...options
+      });
+      
+      return response.data;
+    } catch (error) {
+      console.error('API request error:', error.response?.data || error.message);
+      throw error;
+    }
   }
 
-  async getStockQuote(symbol) {
-    try {
-      const token = await this.getAccessToken();
-      const response = await axios.get(`${this.baseURL}/quotes`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
+  async getStockQuote(symbol, session) {
+    return this.makeAuthenticatedRequest(
+      `/marketdata/v1/quotes`,
+      {
+        method: 'GET',
         params: {
           symbols: symbol,
           fields: 'quote,fundamental'
         }
-      });
-      return response.data;
-    } catch (error) {
-      throw new Error(`Failed to fetch quote for ${symbol}: ${error.message}`);
-    }
+      },
+      session
+    );
   }
 
-  async getMultipleQuotes(symbols) {
-    try {
-      const token = await this.getAccessToken();
-      const response = await axios.get(`${this.baseURL}/quotes`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
+  async getMultipleQuotes(symbols, session) {
+    return this.makeAuthenticatedRequest(
+      `/marketdata/v1/quotes`,
+      {
+        method: 'GET',
         params: {
           symbols: symbols.join(','),
           fields: 'quote,fundamental'
         }
-      });
-      return response.data;
-    } catch (error) {
-      throw new Error(`Failed to fetch quotes: ${error.message}`);
-    }
+      },
+      session
+    );
   }
 
-  async getMarketData() {
-    // Implement market data fetching
-    return { message: 'Market data endpoint' };
+  async getPriceHistory(symbol, session, params = {}) {
+    const defaultParams = {
+      periodType: 'day',
+      period: 1,
+      frequencyType: 'minute',
+      frequency: 5,
+      needExtendedHoursData: true
+    };
+
+    return this.makeAuthenticatedRequest(
+      `/marketdata/v1/pricehistory`,
+      {
+        method: 'GET',
+        params: {
+          symbol,
+          ...defaultParams,
+          ...params
+        }
+      },
+      session
+    );
+  }
+
+  async getMarketHours(markets, date, session) {
+    return this.makeAuthenticatedRequest(
+      `/marketdata/v1/markets`,
+      {
+        method: 'GET',
+        params: {
+          markets: markets.join(','),
+          date
+        }
+      },
+      session
+    );
+  }
+
+  async getMovers(index, direction, change, session) {
+    return this.makeAuthenticatedRequest(
+      `/marketdata/v1/movers/${index}`,
+      {
+        method: 'GET',
+        params: {
+          direction,
+          change
+        }
+      },
+      session
+    );
   }
 }
 
