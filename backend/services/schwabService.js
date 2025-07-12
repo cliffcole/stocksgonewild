@@ -15,6 +15,7 @@ async function getStockHistory(symbol, params) {
   const response = await axios.get(`https://api.schwabapi.com/marketdata/v1/pricehistory?symbol=${symbol}&periodType=${periodType}&period=${period}&frequencyType=${frequencyType}&frequency=${frequency}`, {
     headers: { Authorization: `Bearer ${accessToken}` }
   });
+  //console.log(response.data);
   return response.data;
 }
 

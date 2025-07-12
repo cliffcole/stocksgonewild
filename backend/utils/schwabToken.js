@@ -8,7 +8,7 @@ async function getSchwabAccessToken() {
       refresh_token: process.env.SCHWAB_REFRESH_TOKEN
     }, {
       headers: {
-        Authorization: `Basic ${Buffer.from(`${process.env.SCHWAB_APP_KEY}:${process.env.SCHWAB_APP_SECRET}`).toString('base64')}`,
+        Authorization: `Basic ${Buffer.from(`${process.env.SCHWAB_APP_KEY}:${process.env.SCHWAB_SECRET}`).toString('base64')}`,
         'Content-Type': 'application/x-www-form-urlencoded'
       }
     });

@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   data: {},  // e.g., { symbol: { candles: [], report: {} }}
-  scans: { ma: true, rsi: false },  // Toggles for scans (expand later)
+  scans: { atr: false, ma: true, rsi: false },  // Toggles for scans (expand later)
 };
 
 const stockSlice = createSlice({

@@ -8,12 +8,16 @@ const TwitterStrategy = require('passport-twitter').Strategy;
 const FacebookStrategy = require('passport-facebook').Strategy;
 const authRoutes = require('./routes/authRoutes');
 const stockRoutes = require('./routes/stockRoutes');
+const LocalStrategy = require('passport-local').Strategy;
+const bcrypt = require('bcryptjs');
+const { users } = require('./utils/localUsers');
+
 
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
+app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
 app.use(express.json());
 app.use(session({ secret: process.env.SESSION_SECRET, resave: false, saveUninitialized: true }));
 app.use(passport.initialize());
@@ -21,6 +25,24 @@ app.use(passport.session());
 
 passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((obj, done) => done(null, obj));
+
+// Passport Local Strategy
+passport.use(new LocalStrategy((username, password, done) => {
+  const user = users.find(u => u.username === username);
+  if (!user) return done(null, false, { message: 'Incorrect username' });
+  bcrypt.compare(password, user.password, (err, isMatch) => {
+    if (err) throw err;
+    if (isMatch) return done(null, user);
+    return done(null, false, { message: 'Incorrect password' });
+  });
+}));
+
+// Serialize/Deserialize (existing, works for local too)
+passport.serializeUser((user, done) => done(null, user.id || user.username));  // Adjust if needed
+passport.deserializeUser((id, done) => {
+  const user = users.find(u => u.id === id || u.username === id);
+  done(null, user);
+});
 
 // Google OAuth
 passport.use(new GoogleStrategy({
@@ -46,5 +68,7 @@ passport.use(new FacebookStrategy({
 // Mount routes
 app.use('/auth', authRoutes);
 app.use('/api/stock', stockRoutes);
+app.use('/auth/local', require('./routes/localAuthRoutes'));
+
 
 app.listen(PORT, () => console.log(`Backend running on port ${PORT}`));
