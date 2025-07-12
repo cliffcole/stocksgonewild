@@ -1,15 +1,13 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
-  
   theme: {
     extend: {
       colors: {
-        header: '#3D4451',  // Dark gray for headings
-        primary: '#2962FF',  // Blue for buttons
+        primary: '#2962FF',  // Blue buttons
         positive: '#089981',  // Green +
         negative: '#F23645',  // Red -
-        neutral: '#E0E3EB',  // Gray borders
+        neutral: '#E0E3EB',  // Gray borders/bg
       },
       fontFamily: {
         sans: ['Arial', 'sans-serif'],

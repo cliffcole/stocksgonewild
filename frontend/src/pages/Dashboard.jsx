@@ -5,6 +5,7 @@ import { setStockData, toggleScan } from '../redux/slices/stockSlice';
 import { getHistory, logout } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import { calculateATR } from '../utils/indicators';  // Add import (include others if keeping MA/RSI)
+import Navbar from '../components/Navbar';
 
 function Dashboard() {
     const dispatch = useDispatch();
@@ -61,9 +62,11 @@ function Dashboard() {
     const scanResults = data?.[symbol]?.scans || {};
 
     return (
-    <div className="min-h-screen bg-base-100 p-4">
+        <div>
+            <Navbar />
+            <div className="min-h-screen bg-base-100 p-4">
       <div className="max-w-screen-xl mx-auto">
-        <h1 className="text-2xl font-bold mb-4 text-header">Stock Scanner Dashboard</h1>
+        <h1 className="text-2xl font-bold mb-4">Stock Scanner Dashboard</h1>
         <button onClick={handleLogout} className="btn btn-outline mb-4">Logout</button>
 
         <div className="flex flex-col md:flex-row gap-4">
@@ -115,6 +118,7 @@ function Dashboard() {
           </div>
         </div>
       </div>
+    </div>
     </div>
   );
 }
