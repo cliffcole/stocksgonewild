@@ -27,33 +27,23 @@ function Login() {
   };
 
   return (
-    <div className="hero min-h-screen bg-base-200">
-      <div className="hero-content flex-col">
-        <div className="card w-96 bg-base-100 shadow-xl">
-          <div className="card-body">
-            <h2 className="card-title">{isRegister ? 'Register' : 'Login'}</h2>
-            <form onSubmit={handleSubmit}>
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text">Username</span>
-                </label>
-                <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} className="input input-bordered" required />
-              </div>
-              <div className="form-control mt-2">
-                <label className="label">
-                  <span className="label-text">Password</span>
-                </label>
-                <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="input input-bordered" required />
-              </div>
-              <div className="form-control mt-4">
-                <button type="submit" className="btn btn-primary">{isRegister ? 'Register' : 'Login'}</button>
-              </div>
-            </form>
-            <button onClick={() => setIsRegister(!isRegister)} className="btn btn-link">
-              {isRegister ? 'Switch to Login' : 'Switch to Register'}
-            </button>
+    <div className="min-h-screen bg-base-100 flex items-center justify-center">
+      <div className="card w-96 bg-white border border-neutral p-6 rounded">
+        <h2 className="text-xl font-bold mb-4 text-header">{isRegister ? 'Register' : 'Login'}</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label className="block text-sm mb-1 text-secondary">Username</label>
+            <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} className="input input-bordered w-full" required />
           </div>
-        </div>
+          <div className="mb-4">
+            <label className="block text-sm mb-1 text-secondary">Password</label>
+            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="input input-bordered w-full" required />
+          </div>
+          <button type="submit" className="btn btn-primary w-full"> {isRegister ? 'Register' : 'Login'}</button>
+        </form>
+        <button onClick={() => setIsRegister(!isRegister)} className="text-sm text-primary hover:underline mt-2 block mx-auto">
+          {isRegister ? 'Switch to Login' : 'Switch to Register'}
+        </button>
       </div>
     </div>
   );
