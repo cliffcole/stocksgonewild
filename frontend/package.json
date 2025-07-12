@@ -25,6 +25,7 @@
     "react-dom": "^19.1.0",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.6.3",
+    "react-window": "^1.8.11",
     "redux": "^5.0.1",
     "tailwindcss": "^4.1.11",
     "technicalindicators": "^3.1.0"
